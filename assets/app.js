@@ -73,6 +73,26 @@
   const preview = document.querySelector(".report-preview");
   const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
   const field = (labelText, control, className = "field") => { const wrap = el("div", className); const label = el("label", "", labelText); label.append(control); wrap.append(label); return wrap; };
+  const localCopy = language === "nl" ? {
+    label:"Jouw lokale Origin Report ID", status:"Alleen lokaal · niet geregistreerd", help:"Dit nummer blijft bij dit rapport. Het concept staat alleen in deze browser op dit apparaat.", reports:"Lokale rapporten", unnamed:"Naamloos rapport", newReport:"Nieuw rapport", downloadDraft:"Download concept", deleteReport:"Wis lokaal", newConfirm:"Een nieuw leeg rapport starten? Dit rapport blijft lokaal bewaard.", deleteConfirm:"Dit rapport en alle ingevulde gegevens uit deze browser wissen? Een gedownloade kopie blijft bestaan.", draftSaved:"Lokaal opgeslagen", draftFormat:"origin-report-local-draft", backupError:"Dit conceptbestand kon niet worden gemaakt.", localCredit:"Origin Report ID: {id}."
+  } : {
+    label:"Your local Origin Report ID", status:"Local only · not registered", help:"This number stays with this report. The draft exists only in this browser on this device.", reports:"Local reports", unnamed:"Untitled report", newReport:"New report", downloadDraft:"Download draft", deleteReport:"Delete locally", newConfirm:"Start a new empty report? This report will remain stored locally.", deleteConfirm:"Delete this report and all entered data from this browser? A downloaded copy will remain available.", draftSaved:"Saved locally", draftFormat:"origin-report-local-draft", backupError:"The draft file could not be created.", localCredit:"Origin Report ID: {id}."
+  };
+  const idAlphabet="0123456789ABCDEFGHJKMNPQRSTVWXYZ", checkAlphabet=`${idAlphabet}*~$=U`;
+  function createReportId() {
+    const bytes=new Uint8Array(10); crypto.getRandomValues(bytes); let number=0n; bytes.forEach(byte=>{ number=(number<<8n)|BigInt(byte); });
+    let body=""; for (let index=0;index<16;index+=1) { body=idAlphabet[Number(number & 31n)]+body; number>>=5n; }
+    let checksum=0; [...body].forEach(character=>{ checksum=(checksum*32+idAlphabet.indexOf(character))%37; });
+    return `OR-${body.match(/.{4}/g).join("-")}-${checkAlphabet[checksum]}`;
+  }
+  const storagePrefix="origin-report-local-v0.6", indexKey=`${storagePrefix}-index-${language}`, currentKey=`${storagePrefix}-current-${language}`;
+  const storageGet = key => { try { return localStorage.getItem(key); } catch { return null; } };
+  const storageSet = (key,value) => { try { localStorage.setItem(key,value); return true; } catch { return false; } };
+  const storageRemove = key => { try { localStorage.removeItem(key); } catch {} };
+  const loadIndex = () => { try { const value=JSON.parse(storageGet(indexKey) || "[]"); return Array.isArray(value) ? value : []; } catch { return []; } };
+  let localReports=loadIndex(), reportId=storageGet(currentKey), reportEntry=localReports.find(item=>item.id===reportId);
+  if (!reportEntry) { const now=new Date().toISOString(); reportId=createReportId(); reportEntry={id:reportId,title:"",createdAt:now,updatedAt:now}; localReports.unshift(reportEntry); storageSet(indexKey,JSON.stringify(localReports)); storageSet(currentKey,reportId); }
+  const draftStorageKey = id => `${storagePrefix}-draft-${id}`;
 
   const typeSelect = form.elements.type;
   typeSelect.replaceChildren();
@@ -139,10 +159,15 @@
   const step3 = makeStep(3, ui.followTitle, ui.followIntro); const followCount = el("p", "follow-count"); step3.append(followCount, followupContainer);
   const step4 = makeStep(4, ui.reviewTitle, ui.reviewIntro); const review = el("div", "review-summary"); step4.append(review);
   const step5 = makeStep(5, ui.signTitle, ui.downloadHelp);
-  step1.append(productionFieldset); step2.append(answerGuide, stageContainer); step5.append(signatureFieldset);
+  const identityCard=el("aside","report-identity"), identityText=el("div","report-identity-main"), identityLabel=el("span","",localCopy.label), identityValue=el("strong","report-id-value",reportId), identityStatus=el("small","",localCopy.status), identityHelp=el("p","",localCopy.help);
+  identityText.append(identityLabel,identityValue,identityStatus,identityHelp);
+  const identityControls=el("div","report-identity-controls"), reportSelectLabel=el("label","",localCopy.reports), reportSelect=el("select"); reportSelect.setAttribute("aria-label",localCopy.reports); reportSelectLabel.append(reportSelect);
+  const identityActions=el("div","identity-actions"), newReportButton=el("button","button secondary",localCopy.newReport), draftButton=el("button","button secondary",localCopy.downloadDraft), deleteReportButton=el("button","button quiet-button",localCopy.deleteReport); [newReportButton,draftButton,deleteReportButton].forEach(button=>{button.type="button";}); identityActions.append(newReportButton,draftButton,deleteReportButton); identityControls.append(reportSelectLabel,identityActions); identityCard.append(identityText,identityControls);
+  step1.append(identityCard,productionFieldset); step2.append(answerGuide, stageContainer); step5.append(signatureFieldset);
   const steps = [step1,step2,step3,step4,step5];
   steps.forEach((step,index) => { const nav = el("div", "wizard-nav"); if (index > 0) { const back = el("button", "button secondary", ui.back); back.type="button"; back.dataset.back=""; nav.append(back); } if (index < 4) { const next = el("button", "button primary", index === 3 ? ui.toSignature : ui.next); next.type="button"; next.dataset.next=""; nav.append(next); } step.append(nav); });
   form.replaceChildren(...steps);
+  const previewId=el("span","preview-report-id",reportId); preview.querySelector("div:first-child")?.append(document.createElement("br"),previewId);
 
   const includedStages = () => form.elements.include_delivery?.checked === false ? allStages.filter(stage => !deliveryStages.includes(stage)) : allStages;
   const relevantStages = () => includedStages().filter(stage => ["assisted","generated"].includes(form.elements[stage]?.value));
@@ -190,7 +215,7 @@
   function makeReview() {
     const current=counts(), typeLabel=typeSelect.selectedOptions[0]?.textContent || ui.notProvided;
     review.replaceChildren();
-    const overview=el("div","review-overview"); overview.innerHTML=`<article><span>${ui.productionSummary}</span><strong>${form.elements.title.value || ui.notProvided}</strong><small>${typeLabel} · ${form.elements.runtime_minutes.value || "–"} min</small></article><article><span>${ui.scopeSummary}</span><strong>${includedStages().length} / ${allStages.length}</strong><small>${form.elements.include_delivery?.checked === false ? copy.optionalHelp : copy.optional}</small></article><article><span>${ui.aiSummary}</span><strong>${current.assisted + current.generated}</strong><small>${current.assisted} ${copy.values[1].toLowerCase()} · ${current.generated} ${copy.values[2].toLowerCase()}</small></article>`; review.append(overview);
+    const overview=el("div","review-overview"); overview.innerHTML=`<article><span>${ui.productionSummary}</span><strong>${form.elements.title.value || ui.notProvided}</strong><small>${typeLabel} · ${form.elements.runtime_minutes.value || "–"} min<br>${reportId}</small></article><article><span>${ui.scopeSummary}</span><strong>${includedStages().length} / ${allStages.length}</strong><small>${form.elements.include_delivery?.checked === false ? copy.optionalHelp : copy.optional}</small></article><article><span>${ui.aiSummary}</span><strong>${current.assisted + current.generated}</strong><small>${current.assisted} ${copy.values[1].toLowerCase()} · ${current.generated} ${copy.values[2].toLowerCase()}</small></article>`; review.append(overview);
     const list=el("div","review-list"); includedStages().forEach(stage => { const value=form.elements[stage]?.value || "none", row=el("article",`review-row ${value}`), text=el("div"); text.append(el("strong","",copy.stages[stage][0]),el("span","",copy.values[values.indexOf(value)])); const edit=el("button","button secondary",ui.edit); edit.type="button"; edit.addEventListener("click",()=>{ showStep(2); form.querySelector(`[data-stage-row="${stage}"]`)?.scrollIntoView({block:"center"}); }); row.append(text,edit); list.append(row); }); review.append(list);
   }
   let currentStep=1;
@@ -210,10 +235,22 @@
   }
   steps.forEach(step => { step.querySelector("[data-next]")?.addEventListener("click",()=>{ if (!validateCurrent()) return; showStep(currentStep+1); }); step.querySelector("[data-back]")?.addEventListener("click",()=>showStep(currentStep-1)); });
 
-  const draftKey=`origin-report-draft-v0.5-${language}`, legacyDraftKey=`origin-report-draft-v0.4-${language}`;
-  function saveDraft() { try { const draft={}; form.querySelectorAll("[name]").forEach(control => { if (control.type==="radio") { if (control.checked) draft[control.name]=control.value; } else if (control.type==="checkbox") { if (!Array.isArray(draft[control.name])) draft[control.name]=[]; if (control.checked) draft[control.name].push(control.value || "on"); } else draft[control.name]=control.value; }); sessionStorage.setItem(draftKey,JSON.stringify(draft)); } catch {} }
-  function restoreDraft() { try { const draft=JSON.parse(sessionStorage.getItem(draftKey) || sessionStorage.getItem(legacyDraftKey) || "null"); if (!draft) return; form.querySelectorAll("[name]").forEach(control => { if (!(control.name in draft)) return; if (control.type==="radio") control.checked=draft[control.name]===control.value; else if (control.type==="checkbox") control.checked=Array.isArray(draft[control.name]) && draft[control.name].includes(control.value || "on"); else control.value=draft[control.name]; }); } catch {} }
+  const legacyDraftKey=`origin-report-draft-v0.5-${language}`, olderDraftKey=`origin-report-draft-v0.4-${language}`;
+  function collectDraftValues() { const values={}; form.querySelectorAll("[name]").forEach(control=>{ if (control.type==="radio") { if (control.checked) values[control.name]=control.value; } else if (control.type==="checkbox") { if (!Array.isArray(values[control.name])) values[control.name]=[]; if (control.checked) values[control.name].push(control.value || "on"); } else values[control.name]=control.value; }); return values; }
+  function renderReportSelect() { reportSelect.replaceChildren(); localReports.sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt))).forEach(item=>{ const option=el("option","",`${item.title || localCopy.unnamed} · ${item.id}`); option.value=item.id; option.selected=item.id===reportId; reportSelect.append(option); }); }
+  function saveDraft() {
+    const now=new Date().toISOString(), values=collectDraftValues(); reportEntry=localReports.find(item=>item.id===reportId) || reportEntry; reportEntry.title=String(values.title || "").trim(); reportEntry.updatedAt=now;
+    const draft={format:localCopy.draftFormat,version:"0.6",identifier:{scheme:"origin-report",value:reportId,status:"local-unregistered"},createdAt:reportEntry.createdAt,updatedAt:now,language,values};
+    storageSet(draftStorageKey(reportId),JSON.stringify(draft)); storageSet(indexKey,JSON.stringify(localReports)); storageSet(currentKey,reportId); renderReportSelect(); return draft;
+  }
+  function restoreDraft() { try { const localDraft=JSON.parse(storageGet(draftStorageKey(reportId)) || "null"), legacy=JSON.parse(sessionStorage.getItem(legacyDraftKey) || sessionStorage.getItem(olderDraftKey) || "null"), values=localDraft?.values || legacy; if (!values) return; form.querySelectorAll("[name]").forEach(control=>{ if (!(control.name in values)) return; if (control.type==="radio") control.checked=values[control.name]===control.value; else if (control.type==="checkbox") control.checked=Array.isArray(values[control.name]) && values[control.name].includes(control.value || "on"); else control.value=values[control.name]; }); if (!localDraft && legacy) { sessionStorage.removeItem(legacyDraftKey); sessionStorage.removeItem(olderDraftKey); } } catch {} }
+  function downloadObject(data,filename) { const link=document.createElement("a"); link.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"})); link.download=filename; link.click(); window.setTimeout(()=>URL.revokeObjectURL(link.href),0); }
   restoreDraft();
+  renderReportSelect();
+  reportSelect.addEventListener("change",()=>{ saveDraft(); storageSet(currentKey,reportSelect.value); window.location.reload(); });
+  newReportButton.addEventListener("click",()=>{ if (!window.confirm(localCopy.newConfirm)) return; saveDraft(); const now=new Date().toISOString(),id=createReportId(); localReports.unshift({id,title:"",createdAt:now,updatedAt:now}); storageSet(indexKey,JSON.stringify(localReports)); storageSet(currentKey,id); window.location.reload(); });
+  deleteReportButton.addEventListener("click",()=>{ if (!window.confirm(localCopy.deleteConfirm)) return; storageRemove(draftStorageKey(reportId)); localReports=localReports.filter(item=>item.id!==reportId); if (!localReports.length) { const now=new Date().toISOString(),id=createReportId(); localReports=[{id,title:"",createdAt:now,updatedAt:now}]; } storageSet(indexKey,JSON.stringify(localReports)); storageSet(currentKey,localReports[0].id); window.location.reload(); });
+  draftButton.addEventListener("click",()=>{ try { const draft=saveDraft(),safe=(draft.values.title || "origin-report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); downloadObject(draft,`${safe || "origin-report"}-${reportId.toLowerCase()}.origin-draft.json`); } catch { window.alert(localCopy.backupError); } });
   const dateField=form.elements.signed_date; if (dateField && !dateField.value) dateField.value=new Date().toISOString().slice(0,10);
   form.addEventListener("input",()=>{ updatePreview(); saveDraft(); }); form.addEventListener("change",()=>{ updatePreview(); saveDraft(); });
   function payload() {
@@ -230,11 +267,11 @@
       }
       reportStages[stage]=entry;
     });
-    const report={format:"origin-report",version:"0.5",title:String(data.get("title") || "").trim(),type:String(data.get("type") || ""),year:Number(data.get("year")) || null,runtimeMinutes:Number(data.get("runtime_minutes")) || null,producer:String(data.get("producer") || "").trim(),scope:{deliveryCampaignIncluded:form.elements.include_delivery?.checked !== false},stages:reportStages,signed:{method:"self-attestation",identityVerified:false,attested:data.get("signed_attestation")==="true",name:String(data.get("signed_name") || "").trim(),role:String(data.get("signed_role") || "").trim(),date:String(data.get("signed_date") || "")}};
+    const report={format:"origin-report",version:"0.6",identifier:{scheme:"origin-report",value:reportId,status:"local-unregistered"},createdAt:reportEntry.createdAt,updatedAt:new Date().toISOString(),title:String(data.get("title") || "").trim(),type:String(data.get("type") || ""),year:Number(data.get("year")) || null,runtimeMinutes:Number(data.get("runtime_minutes")) || null,producer:String(data.get("producer") || "").trim(),scope:{deliveryCampaignIncluded:form.elements.include_delivery?.checked !== false},stages:reportStages,signed:{method:"self-attestation",identityVerified:false,attested:data.get("signed_attestation")==="true",name:String(data.get("signed_name") || "").trim(),role:String(data.get("signed_role") || "").trim(),date:String(data.get("signed_date") || "")}};
     const typeOther=String(data.get("type_other") || "").trim(),url=String(data.get("url") || "").trim(),statement=String(data.get("statement") || "").trim(); if (typeOther) report.typeOther=typeOther; if (url) report.url=url; if (statement) report.statement=statement; return report;
   }
-  document.querySelector("#download-json")?.addEventListener("click",()=>{ const requiredSteps=[1,2,3,5]; for (const stepNumber of requiredSteps) { showStep(stepNumber); if (!validateCurrent()) return; } showStep(5); const report=payload(),safe=(report.title || "origin-report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); const link=document.createElement("a"); link.href=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:"application/json"})); link.download=`${safe || "origin-report"}.origin.json`; link.click(); window.setTimeout(()=>URL.revokeObjectURL(link.href),0); });
-  document.querySelector("#copy-credit")?.addEventListener("click",async event=>{ const current=counts(),total=includedStages().length,credit=copy.credit.replace("{none}",current.none).replace("{assisted}",current.assisted).replace("{generated}",current.generated).replace("{na}",current.na).replace("{total}",total); try { await navigator.clipboard.writeText(credit); } catch { window.prompt(language==="nl" ? "Kopieer deze tekst:" : "Copy this text:",credit); } const old=event.currentTarget.textContent; event.currentTarget.textContent=`✓ ${copy.copied}`; window.setTimeout(()=>{event.currentTarget.textContent=old;},1800); });
+  document.querySelector("#download-json")?.addEventListener("click",()=>{ const requiredSteps=[1,2,3,5]; for (const stepNumber of requiredSteps) { showStep(stepNumber); if (!validateCurrent()) return; } showStep(5); saveDraft(); const report=payload(),safe=(report.title || "origin-report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); downloadObject(report,`${safe || "origin-report"}-${reportId.toLowerCase()}.origin.json`); });
+  document.querySelector("#copy-credit")?.addEventListener("click",async event=>{ const current=counts(),total=includedStages().length,summary=copy.credit.replace("{none}",current.none).replace("{assisted}",current.assisted).replace("{generated}",current.generated).replace("{na}",current.na).replace("{total}",total),credit=`${localCopy.localCredit.replace("{id}",reportId)} ${summary}`; try { await navigator.clipboard.writeText(credit); } catch { window.prompt(language==="nl" ? "Kopieer deze tekst:" : "Copy this text:",credit); } const old=event.currentTarget.textContent; event.currentTarget.textContent=`✓ ${copy.copied}`; window.setTimeout(()=>{event.currentTarget.textContent=old;},1800); });
   document.querySelector("#print-report")?.addEventListener("click",()=>window.print());
-  updatePreview(); showStep(1);
+  updatePreview(); saveDraft(); showStep(1);
 })();
