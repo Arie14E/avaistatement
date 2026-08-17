@@ -146,7 +146,7 @@
         reportStages[stage].iptc = iptc;
       }
     });
-    const report = { format:"origin-report", version:"0.3", title:String(data.get("title") || "").trim(), type:String(data.get("type") || "").trim(), year:Number(data.get("year")) || null, producer:String(data.get("producer") || "").trim(), scope:{ deliveryCampaignIncluded: form.elements.include_delivery?.checked !== false }, stages:reportStages, signed:{ name:String(data.get("signed_name") || "").trim(), role:String(data.get("signed_role") || "").trim(), date:String(data.get("signed_date") || "").trim() } };
+    const report = { format:"origin-report", version:"0.3", title:String(data.get("title") || "").trim(), type:String(data.get("type") || "").trim(), year:Number(data.get("year")) || null, producer:String(data.get("producer") || "").trim(), scope:{ deliveryCampaignIncluded: form.elements.include_delivery?.checked !== false }, stages:reportStages, signed:{ method:"self-attestation", identityVerified:false, attested:data.get("signed_attestation") === "true", name:String(data.get("signed_name") || "").trim(), role:String(data.get("signed_role") || "").trim(), date:String(data.get("signed_date") || "").trim() } };
     const url = String(data.get("url") || "").trim(), statement = String(data.get("statement") || "").trim(); if (url) report.url = url; if (statement) report.statement = statement; return report;
   }
   form.addEventListener("change", updatePreview); form.addEventListener("input", updatePreview);
