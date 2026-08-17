@@ -4,13 +4,14 @@
   const language = document.documentElement.lang === "en" ? "en" : "nl";
   const copy = {
     nl: {
-      blocks: [["Pre-productie", ["script", "casting"]], ["Productie", ["performance", "camera"]], ["Post-productie", ["vfx", "sound", "music", "grade", "subtitles"]], ["Delivery en campagne", ["keyart", "trailer"]]],
+      blocks: [["Pre-productie", ["script", "casting"]], ["Productie", ["performance", "camera"]], ["Post-productie", ["vfx", "ai-generation", "sound", "music", "grade", "subtitles"]], ["Delivery en campagne", ["keyart", "trailer"]]],
       stages: {
         script:["Script & ontwikkeling","Van eerste onderzoek tot definitief scenario",["scenario","research","redactie","vertaling","storyboard","previs"]],
         casting:["Casting & voorbereiding","Artistieke en productionele voorbereiding",["casting","locaties","production office","productie","assistent-regie","regievoorbereiding","production design","art department","kostuum","haar & make-up"]],
         performance:["Regie & performance","Menselijke performances voor camera en microfoon",["regie","acteurs","figuratie","stem","stunts","choreografie","intimacy coordination"]],
         camera:["Camera & set","Alles wat tijdens de opname beeld en geluid bepaalt",["regie","assistent-regie","productie","locaties","camera","DIT & data","licht","grip","setgeluid","script continuity","production design","art department","props","kostuum","haar & make-up","special effects"]],
         vfx:["Montage & VFX","Van beeldselectie tot samengestelde en grafische shots",["montage","online edit","VFX","compositing","motion graphics","titels","restauratie"]],
+        "ai-generation":["AI-materiaal genereren","Het maken van nieuw beeld, geluid of tekst met generatieve AI",["AI-regie","prompting","beeldgeneratie","videogeneratie","stemgeneratie","geluidsgeneratie","tekstgeneratie","modelselectie","workflow & pipeline","dataset & rechten","kwaliteitscontrole"]],
         sound:["Geluid & voice","De volledige geluidsketen, inclusief het materiaal van de set",["setgeluid","dialoogedit","ADR","Foley","sounddesign","voice-over","mix","mastering"]],
         music:["Muziek","Originele en bestaande muziek",["compositie","songwriting","uitvoering","muziekproductie","music supervision","rechten"]],
         grade:["Colour grade & mastering","De uiteindelijke kleur en beeldafwerking",["colour grade","finishing","restauratie","beeldmastering"]],
@@ -29,13 +30,14 @@
       credit: "AI-transparantie: {none} van {total} opgenomen onderdelen zonder generatieve AI, {assisted} met AI als hulpmiddel, {generated} met AI-materiaal in het eindresultaat en {na} niet van toepassing. Volledig Origin Report beschikbaar bij de productie.", copied: "Gekopieerd"
     },
     en: {
-      blocks: [["Pre-production", ["script", "casting"]], ["Production", ["performance", "camera"]], ["Post-production", ["vfx", "sound", "music", "grade", "subtitles"]], ["Delivery & campaign", ["keyart", "trailer"]]],
+      blocks: [["Pre-production", ["script", "casting"]], ["Production", ["performance", "camera"]], ["Post-production", ["vfx", "ai-generation", "sound", "music", "grade", "subtitles"]], ["Delivery & campaign", ["keyart", "trailer"]]],
       stages: {
         script:["Script & development","From initial research to final screenplay",["screenwriting","research","editing","translation","storyboard","previs"]],
         casting:["Casting & preparation","Artistic and production preparation",["casting","locations","production office","production","assistant direction","directing prep","production design","art department","costume","hair & make-up"]],
         performance:["Direction & performance","Human performances for camera and microphone",["directing","actors","extras","voice","stunts","choreography","intimacy coordination"]],
         camera:["Camera & set","Everything shaping image and sound during the shoot",["direction","assistant direction","production","locations","camera","DIT & data","lighting","grip","production sound","script continuity","production design","art department","props","costume","hair & make-up","special effects"]],
         vfx:["Editing & VFX","From shot selection to composite and graphic work",["editing","online edit","VFX","compositing","motion graphics","titles","restoration"]],
+        "ai-generation":["AI material generation","Creating new image, video, sound or text with generative AI",["AI direction","prompting","image generation","video generation","voice generation","sound generation","text generation","model selection","workflow & pipeline","datasets & rights","quality control"]],
         sound:["Sound & voice","The full sound chain, including production recordings",["production sound","dialogue edit","ADR","Foley","sound design","voice-over","mix","mastering"]],
         music:["Music","Original and existing music",["composition","songwriting","performance","music production","music supervision","rights"]],
         grade:["Colour grade & mastering","Final colour and image finishing",["colour grade","finishing","restoration","image mastering"]],
@@ -208,9 +210,9 @@
   }
   steps.forEach(step => { step.querySelector("[data-next]")?.addEventListener("click",()=>{ if (!validateCurrent()) return; showStep(currentStep+1); }); step.querySelector("[data-back]")?.addEventListener("click",()=>showStep(currentStep-1)); });
 
-  const draftKey=`origin-report-draft-v0.4-${language}`;
+  const draftKey=`origin-report-draft-v0.5-${language}`, legacyDraftKey=`origin-report-draft-v0.4-${language}`;
   function saveDraft() { try { const draft={}; form.querySelectorAll("[name]").forEach(control => { if (control.type==="radio") { if (control.checked) draft[control.name]=control.value; } else if (control.type==="checkbox") { if (!Array.isArray(draft[control.name])) draft[control.name]=[]; if (control.checked) draft[control.name].push(control.value || "on"); } else draft[control.name]=control.value; }); sessionStorage.setItem(draftKey,JSON.stringify(draft)); } catch {} }
-  function restoreDraft() { try { const draft=JSON.parse(sessionStorage.getItem(draftKey) || "null"); if (!draft) return; form.querySelectorAll("[name]").forEach(control => { if (!(control.name in draft)) return; if (control.type==="radio") control.checked=draft[control.name]===control.value; else if (control.type==="checkbox") control.checked=Array.isArray(draft[control.name]) && draft[control.name].includes(control.value || "on"); else control.value=draft[control.name]; }); } catch {} }
+  function restoreDraft() { try { const draft=JSON.parse(sessionStorage.getItem(draftKey) || sessionStorage.getItem(legacyDraftKey) || "null"); if (!draft) return; form.querySelectorAll("[name]").forEach(control => { if (!(control.name in draft)) return; if (control.type==="radio") control.checked=draft[control.name]===control.value; else if (control.type==="checkbox") control.checked=Array.isArray(draft[control.name]) && draft[control.name].includes(control.value || "on"); else control.value=draft[control.name]; }); } catch {} }
   restoreDraft();
   const dateField=form.elements.signed_date; if (dateField && !dateField.value) dateField.value=new Date().toISOString().slice(0,10);
   form.addEventListener("input",()=>{ updatePreview(); saveDraft(); }); form.addEventListener("change",()=>{ updatePreview(); saveDraft(); });
@@ -228,7 +230,7 @@
       }
       reportStages[stage]=entry;
     });
-    const report={format:"origin-report",version:"0.4",title:String(data.get("title") || "").trim(),type:String(data.get("type") || ""),year:Number(data.get("year")) || null,runtimeMinutes:Number(data.get("runtime_minutes")) || null,producer:String(data.get("producer") || "").trim(),scope:{deliveryCampaignIncluded:form.elements.include_delivery?.checked !== false},stages:reportStages,signed:{method:"self-attestation",identityVerified:false,attested:data.get("signed_attestation")==="true",name:String(data.get("signed_name") || "").trim(),role:String(data.get("signed_role") || "").trim(),date:String(data.get("signed_date") || "")}};
+    const report={format:"origin-report",version:"0.5",title:String(data.get("title") || "").trim(),type:String(data.get("type") || ""),year:Number(data.get("year")) || null,runtimeMinutes:Number(data.get("runtime_minutes")) || null,producer:String(data.get("producer") || "").trim(),scope:{deliveryCampaignIncluded:form.elements.include_delivery?.checked !== false},stages:reportStages,signed:{method:"self-attestation",identityVerified:false,attested:data.get("signed_attestation")==="true",name:String(data.get("signed_name") || "").trim(),role:String(data.get("signed_role") || "").trim(),date:String(data.get("signed_date") || "")}};
     const typeOther=String(data.get("type_other") || "").trim(),url=String(data.get("url") || "").trim(),statement=String(data.get("statement") || "").trim(); if (typeOther) report.typeOther=typeOther; if (url) report.url=url; if (statement) report.statement=statement; return report;
   }
   document.querySelector("#download-json")?.addEventListener("click",()=>{ const requiredSteps=[1,2,3,5]; for (const stepNumber of requiredSteps) { showStep(stepNumber); if (!validateCurrent()) return; } showStep(5); const report=payload(),safe=(report.title || "origin-report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); const link=document.createElement("a"); link.href=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:"application/json"})); link.download=`${safe || "origin-report"}.origin.json`; link.click(); window.setTimeout(()=>URL.revokeObjectURL(link.href),0); });
