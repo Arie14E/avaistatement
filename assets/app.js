@@ -21,6 +21,8 @@
       question: "Hoe is generatieve AI binnen dit onderdeel gebruikt?", departments: "Vink bij AI-gebruik de betrokken vakgebieden aan:",
       values: ["Niet gebruikt", "Als hulpmiddel", "In eindmateriaal", "Niet van toepassing"],
       details: "Noem gebruikte tool(s) en beschrijf kort wat ermee is gemaakt of gewijzigd, indien van toepassing.",
+      iptcHelp: "IPTC-classificatie voor materiaal in het eindresultaat", iptcType: "Wat beschrijft het eindmateriaal het best?", choose: "Kies een type", system: "AI-systeem of model", systemVersion: "Versie, indien bekend", prompt: "Promptinformatie, optioneel", promptWriter: "Naam promptschrijver, optioneel",
+      sourceTypes: [["compositeWithTrainedAlgorithmicMedia","Bestaand materiaal generatief aangepast (bijv. generative fill)"],["compositeSynthetic","Opgenomen en gegenereerde elementen gecombineerd"],["trainedAlgorithmicMedia","Volledig of vrijwel volledig met generatieve AI gemaakt"]],
       optional: "Dit blok opnemen in het rapport", optionalHelp: "Zet dit uit wanneer delivery en campagne buiten de scope van deze verklaring vallen.",
       credit: "AI-transparantie: {none} van {total} opgenomen onderdelen zonder generatieve AI, {assisted} met AI als hulpmiddel, {generated} met AI in het eindmateriaal en {na} niet van toepassing. Volledig Origin Report beschikbaar bij de productie.", copied: "Gekopieerd"
     },
@@ -42,6 +44,8 @@
       question: "How was generative AI used in this stage?", departments: "When AI was used, select the crafts involved:",
       values: ["Not used", "As a tool", "In final material", "Not applicable"],
       details: "Name the tool(s) and briefly describe what was made or changed, if applicable.",
+      iptcHelp: "IPTC classification for material in the finished work", iptcType: "Which description best fits the final material?", choose: "Choose a type", system: "AI system or model", systemVersion: "Version, if known", prompt: "Prompt information, optional", promptWriter: "Prompt writer name, optional",
+      sourceTypes: [["compositeWithTrainedAlgorithmicMedia","Existing material edited with generative AI (e.g. generative fill)"],["compositeSynthetic","Captured and generated elements combined"],["trainedAlgorithmicMedia","Fully or almost fully created with generative AI"]],
       optional: "Include this block in the report", optionalHelp: "Switch this off when delivery and campaign are outside the scope of this declaration.",
       credit: "AI transparency: {none} of {total} included stages used no generative AI, {assisted} used AI as a tool, {generated} contain AI in final material and {na} were not applicable. Full Origin Report available with the production.", copied: "Copied"
     }
@@ -65,7 +69,7 @@
       label.append(toggle, labelText); options.append(label, help); fieldset.append(legend, options);
       toggle.addEventListener("change", () => {
         fieldset.classList.toggle("is-disabled", !toggle.checked);
-        list.querySelectorAll("input").forEach(input => { input.disabled = !toggle.checked; });
+        list.querySelectorAll("input, select, textarea").forEach(input => { input.disabled = !toggle.checked; });
         updatePreview();
       });
     } else fieldset.append(legend);
@@ -84,7 +88,14 @@
       values.forEach((value, index) => { const label = document.createElement("label"), input = document.createElement("input"), span = document.createElement("span"); input.type = "radio"; input.name = stage; input.value = value; input.checked = index === 0; span.textContent = copy.values[index]; label.append(input, span); choices.append(label); });
       answer.append(question, choices);
       const details = document.createElement("input"); details.className = "tools-input"; details.name = `${stage}_details`; details.placeholder = copy.details; details.setAttribute("aria-label", `${name}: ${copy.details}`);
-      row.append(title, answer, details); list.append(row);
+      const iptcBox = document.createElement("div"); iptcBox.className = "iptc-form-fields"; iptcBox.dataset.iptcStage = stage;
+      const iptcTitle = document.createElement("strong"); iptcTitle.textContent = copy.iptcHelp;
+      const sourceLabel = document.createElement("label"); sourceLabel.textContent = copy.iptcType;
+      const sourceSelect = document.createElement("select"); sourceSelect.name = `${stage}_iptc_type`; sourceSelect.disabled = true; sourceSelect.innerHTML = `<option value="">${copy.choose}</option>` + copy.sourceTypes.map(([value,label]) => `<option value="${value}">${label}</option>`).join(""); sourceLabel.append(sourceSelect);
+      const iptcGrid = document.createElement("div"); iptcGrid.className = "iptc-field-grid";
+      [["system",copy.system],["system_version",copy.systemVersion],["prompt",copy.prompt],["prompt_writer",copy.promptWriter]].forEach(([suffix,placeholder]) => { const input = document.createElement(suffix === "prompt" ? "textarea" : "input"); input.name = `${stage}_iptc_${suffix}`; input.placeholder = placeholder; input.setAttribute("aria-label", `${name}: ${placeholder}`); input.disabled = true; iptcGrid.append(input); });
+      iptcBox.append(iptcTitle, sourceLabel, iptcGrid);
+      row.append(title, answer, details, iptcBox); list.append(row);
     });
     fieldset.append(list); container.append(fieldset);
   });
@@ -101,9 +112,20 @@
       });
     });
   }
+  function updateIptcInputs() {
+    const included = includedStages();
+    allStages.forEach(stage => {
+      const box = form.querySelector(`[data-iptc-stage="${stage}"]`), enabled = included.includes(stage) && form.elements[stage]?.value === "generated";
+      if (!box) return;
+      box.classList.toggle("is-visible", enabled);
+      box.querySelectorAll("input, select, textarea").forEach(control => { control.disabled = !enabled; });
+      const type = form.elements[`${stage}_iptc_type`]; if (type) type.required = enabled;
+    });
+  }
   const counts = () => includedStages().reduce((total, stage) => { total[form.elements[stage]?.value || "none"] += 1; return total; }, { none:0, assisted:0, generated:0, na:0 });
   function updatePreview() {
     updateDepartmentInputs();
+    updateIptcInputs();
     const included = includedStages(), current = counts();
     allStages.forEach((stage, index) => { const cell = document.querySelector(`[data-preview="${index}"]`); if (cell) cell.className = included.includes(stage) ? (form.elements[stage]?.value || "none") : "na"; });
     Object.entries(current).forEach(([key, value]) => document.querySelectorAll(`[data-count="${key}"]`).forEach(node => { node.textContent = value; }));
@@ -117,10 +139,14 @@
       const affected = data.getAll(`${stage}_departments`);
       if (affected.length) reportStages[stage].departmentsAffected = affected;
       if (details) reportStages[stage].details = details;
-      if (value === "assisted") reportStages[stage].iptc = "https://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia";
-      if (value === "generated") reportStages[stage].iptc = "https://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia";
+      if (value === "generated") {
+        const typeId = String(data.get(`${stage}_iptc_type`) || ""), typeLabel = copy.sourceTypes.find(item => item[0] === typeId)?.[1];
+        const iptc = { digitalSourceType: { cvId:"http://cv.iptc.org/newscodes/digitalsourcetype/", cvTermId:`http://cv.iptc.org/newscodes/digitalsourcetype/${typeId}`, cvTermName:{ [language]:typeLabel } } };
+        [["aISystemUsed","system"],["aISystemVersionUsed","system_version"],["aIPromptInformation","prompt"],["aIPromptWriterName","prompt_writer"]].forEach(([property,suffix]) => { const entry = String(data.get(`${stage}_iptc_${suffix}`) || "").trim(); if (entry) iptc[property] = entry; });
+        reportStages[stage].iptc = iptc;
+      }
     });
-    const report = { format:"origin-report", version:"0.2", title:String(data.get("title") || "").trim(), type:String(data.get("type") || "").trim(), year:Number(data.get("year")) || null, producer:String(data.get("producer") || "").trim(), scope:{ deliveryCampaignIncluded: form.elements.include_delivery?.checked !== false }, stages:reportStages, signed:{ name:String(data.get("signed_name") || "").trim(), role:String(data.get("signed_role") || "").trim(), date:String(data.get("signed_date") || "").trim() } };
+    const report = { format:"origin-report", version:"0.3", title:String(data.get("title") || "").trim(), type:String(data.get("type") || "").trim(), year:Number(data.get("year")) || null, producer:String(data.get("producer") || "").trim(), scope:{ deliveryCampaignIncluded: form.elements.include_delivery?.checked !== false }, stages:reportStages, signed:{ name:String(data.get("signed_name") || "").trim(), role:String(data.get("signed_role") || "").trim(), date:String(data.get("signed_date") || "").trim() } };
     const url = String(data.get("url") || "").trim(), statement = String(data.get("statement") || "").trim(); if (url) report.url = url; if (statement) report.statement = statement; return report;
   }
   form.addEventListener("change", updatePreview); form.addEventListener("input", updatePreview);
