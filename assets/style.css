@@ -161,3 +161,14 @@ details.answer-guide .answer-guide-grid{padding:18px 20px 20px}
 .duo-heading{margin-top:56px}
 .duo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
 .underlined{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px;text-decoration-color:var(--aqua)}
+
+/* ---------- Why now: dated developments with sources ---------- */
+.news-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.news-card{position:relative;padding:22px 24px 24px;border:1px solid var(--line);border-radius:18px;background:var(--white)}
+.news-card::before{content:"";position:absolute;left:0;top:24px;bottom:24px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(var(--violet),var(--aqua))}
+.news-date{display:inline-block;margin-bottom:9px;padding:4px 10px;border-radius:999px;background:var(--paper);font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--muted)}
+.news-card h3{margin:0 0 8px;font-size:17px;line-height:1.25}
+.news-card p{margin:0;font-size:13.5px;line-height:1.6;color:var(--muted)}
+.news-card a{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;text-decoration-color:rgba(12,20,36,.3)}
+.news-card a:hover{text-decoration-color:var(--violet)}
+.news-card em{font-style:normal;font-weight:600;color:var(--ink)}
