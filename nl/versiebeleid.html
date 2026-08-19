@@ -1,0 +1,54 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Versiebeleid — Audiovisueel AI Statement</title><meta name="description" content="Hoe het format verandert, wat er gegarandeerd blijft werken, en wanneer versie 1.0 komt."><meta property="og:image" content="https://avaistatement.com/assets/audiovisual-ai-statement-social.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:type" content="website"><link rel="canonical" href="https://avaistatement.com/nl/versiebeleid.html"><link rel="alternate" hreflang="nl" href="https://avaistatement.com/nl/versiebeleid.html"><link rel="alternate" hreflang="en" href="https://avaistatement.com/en/versioning.html"><link rel="alternate" hreflang="x-default" href="https://avaistatement.com/en/versioning.html"><link rel="icon" href="../assets/favicon.svg" type="image/svg+xml"><meta property="og:url" content="https://avaistatement.com/nl/versiebeleid.html"><link rel="stylesheet" href="../assets/style.css"><script src="../assets/site-config.js" defer></script></head><body>
+<header class="site-header"><a class="wordmark" href="index.html"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Audiovisueel AI Statement</a><nav aria-label="Hoofdnavigatie"><a href="index.html">Overzicht</a><a href="format.html" aria-current="page">Format</a><a class="nav-cta" href="verklaring.html">Maak een verklaring ↗</a><a class="lang-link" href="../en/versioning.html" lang="en">EN</a></nav></header>
+<main>
+  <section class="page-hero"><span class="eyebrow">Versiebeleid</span><h1>Wat blijft werken,<br><span class="gradient-text">en wat nog mag wijzigen.</span></h1><p>Een format is pas bruikbaar als je weet waar je op kunt rekenen. Deze pagina zegt precies dat.</p></section>
+
+  <section class="section">
+    <div class="status-banner"><strong>Nu: versie 0.9 — concept.</strong> Zolang het versienummer met een 0 begint, mag het format nog breken. Wie er vandaag mee werkt, moet erop rekenen dat een veld kan verdwijnen of anders gaan heten. Statements blijven leesbaar, maar automatische koppelingen kunnen omvallen.</div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading"><span class="kicker">De belofte vanaf 1.0</span><div><h2>Erbij mag. Weg niet.</h2><p>Vanaf versie 1.0 geldt één regel, en die is bindend.</p></div></div>
+    <div class="three-grid">
+      <article class="info-card"><span class="number">01 / TOEVOEGEN</span><h3>Nieuwe velden mogen</h3><p>Een hogere versie kan velden toevoegen. Een bestand van vandaag blijft geldig.</p></article>
+      <article class="info-card"><span class="number">02 / BEHOUDEN</span><h3>Bestaande velden blijven</h3><p>Geen veld verdwijnt, wordt hernoemd of krijgt een andere betekenis. Wat 1.0 betekende, betekent 1.7 nog steeds.</p></article>
+      <article class="info-card"><span class="number">03 / NEGEREN</span><h3>Lezers slaan over wat ze niet kennen</h3><p>Wie een lezer bouwt, negeert onbekende velden in plaats van te stoppen. Zo blijft één lezer alle latere versies aankunnen.</p></article>
+    </div>
+    <div class="source-note" style="margin-top:18px"><strong>Waarom dit werkt.</strong> Deze regel komt uit standaarden die decennia meegaan, zoals de IPTC-vocabulaires en schema.org. Ze groeien door toevoeging, nooit door vervanging. Dat is saai en het is precies de bedoeling.</div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading"><span class="kicker">Eigen velden</span><div><h2>Uitbreiden zonder af te splitsen.</h2><p>Mist een fonds, distributeur of verzekeraar iets? Dan hoeft er geen eigen variant van het format te komen.</p></div></div>
+    <p class="format-lead">Elk statement heeft een <code>extensions</code>-object. Daar hangt een organisatie eigen velden onder, achter een eigen sleutel in omgekeerde domeinnaam. Die sleutel is van hen; de rest van het bestand blijft van de standaard.</p>
+    <div class="code-window">
+      <div class="code-top"><span>extensions</span><span>0.9</span></div>
+      <pre><code>"extensions": {
+  "nl.filmfonds.v1": { "dossiernummer": "2026-114" },
+  "com.voorbeeld-distributeur.v2": { "deliverySpec": "…" }
+}</code></pre>
+    </div>
+    <p class="format-lead">Hetzelfde mag per fase. Een lezer die de sleutel niet kent, slaat hem over.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-heading"><span class="kicker">Controleren</span><div><h2>Elk bestand is machinaal te valideren.</h2></div></div>
+    <p class="format-lead">Elke versie heeft een gepubliceerd JSON-schema op een vast adres. Elk statement verwijst er zelf naar, dus een ontvanger kan altijd nagaan of een bestand klopt — ook over tien jaar, en ook als deze site er niet meer is.</p>
+    <div class="mapping-table">
+      <div class="mapping-row mapping-head"><span>Versie</span><span>Schema</span></div>
+      <div class="mapping-row"><strong>0.9</strong><code><a href="../schema/0.9.json">/schema/0.9.json</a></code></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading"><span class="kicker">Naar 1.0</span><div><h2>Pas bevriezen als het getest is.</h2></div></div>
+    <p class="format-lead">Versie 1.0 komt er niet op een datum, maar op een voorwaarde: als een aantal echte producties het formulier volledig heeft doorlopen en duidelijk is welke vragen in de praktijk niet werken. Tot die tijd is elke wijziging gratis. Daarna kost hij tien jaar.</p>
+    <div class="publishing-grid">
+      <article><span>0.7</span><strong>Eerste opzet</strong><p>Twaalf fases, vier antwoorden, IPTC-koppeling.</p></article>
+      <article><span>0.8</span><strong>Animatie en mediasoorten</strong><p>Dertiende fase erbij. Dekking per fase passend gemaakt in plaats van overal beeld en geluid.</p></article>
+      <article><span>0.9</span><strong>Uitbreidbaar</strong><p>Eigen blok voor AI-materiaal, AI-agent als losse optie, <code>extensions</code> en een gepubliceerd schema.</p></article>
+    </div>
+  </section>
+
+  <section class="section"><div class="cta-panel"><div><span class="kicker">Vragen over een wijziging?</span><h2>Zeg het voordat 1.0 er is.</h2></div><a class="button primary" href="format.html">Terug naar het format</a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-row"><a class="wordmark" href="index.html"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Audiovisueel AI Statement</a><div class="footer-links"><a href="format.html">Het format</a><a href="rapport.html">Lees een statement</a><a href="../en/versioning.html" lang="en">English</a></div><p>Geen trackingcode. Bestanden blijven lokaal.</p></div></footer></body></html>

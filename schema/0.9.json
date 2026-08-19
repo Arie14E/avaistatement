@@ -1,0 +1,2332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://avaistatement.com/schema/0.9.json",
+  "title": "Audiovisueel AI Statement",
+  "description": "An open format for declaring where generative AI was used in an audiovisual production. Version 0.9 is a draft: breaking changes are still allowed until 1.0. From 1.0 onwards fields may only be added, never removed, renamed or redefined.",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "identifier",
+    "title",
+    "type",
+    "stages",
+    "signed"
+  ],
+  "properties": {
+    "format": {
+      "const": "audiovisual-ai-statement"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensions"
+    },
+    "identifier": {
+      "type": "object",
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "properties": {
+        "scheme": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "local-unregistered",
+            "registered"
+          ]
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string"
+    },
+    "typeOther": {
+      "type": "string"
+    },
+    "year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "runtimeMinutes": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "producer": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "statement": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "deliveryCampaignIncluded": {
+          "type": "boolean"
+        }
+      }
+    },
+    "stages": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "text",
+                      "still",
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "text",
+                      "still",
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "casting": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "text",
+                      "still",
+                      "motion",
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "text",
+                      "still",
+                      "motion",
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "performance": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "motion",
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "motion",
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "camera": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "motion",
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "motion",
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "animation": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "still",
+                      "motion",
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "still",
+                      "motion",
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "vfx": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "still",
+                      "motion"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "still",
+                      "motion"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "sound": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "music": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "grade": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "still",
+                      "motion"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "still",
+                      "motion"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "subtitles": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "text",
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "text",
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "ai-generation": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "text",
+                      "still",
+                      "motion",
+                      "sound"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "text",
+                      "still",
+                      "motion",
+                      "sound"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "keyart": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "still",
+                      "text",
+                      "motion"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "still",
+                      "text",
+                      "motion"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "trailer": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "none",
+                "assisted",
+                "generated",
+                "na"
+              ],
+              "description": "How generative AI was used in this stage."
+            },
+            "departmentsInScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "departmentsAffected": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "details": {
+              "type": "string"
+            },
+            "aiSystem": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "agentTakeover": {
+              "type": "object",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "extent": {
+                  "enum": [
+                    "partial",
+                    "full"
+                  ]
+                },
+                "departmentOrFunction": {
+                  "type": "string"
+                },
+                "humanOversight": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "present"
+              ]
+            },
+            "extent": {
+              "type": "object",
+              "properties": {
+                "approximate": {
+                  "type": "boolean"
+                },
+                "percentage": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lessThan": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lessThan"
+                      ]
+                    }
+                  ]
+                },
+                "mediaKinds": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "motion",
+                      "sound",
+                      "text"
+                    ]
+                  }
+                },
+                "coverage": {
+                  "type": "object",
+                  "propertyNames": {
+                    "enum": [
+                      "motion",
+                      "sound",
+                      "text"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "enum": [
+                      "none",
+                      "partial",
+                      "full"
+                    ]
+                  }
+                },
+                "measuredAgainstRunningTime": {
+                  "type": "boolean"
+                },
+                "timecodesOrLocation": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "presentationContext": {
+              "enum": [
+                "technical-cosmetic",
+                "illustration",
+                "reconstruction",
+                "fictional-stylised",
+                "real-person-place-event",
+                "authentic-recording"
+              ]
+            },
+            "authenticityContext": {
+              "type": "object",
+              "properties": {
+                "couldBePerceivedAsAuthentic": {
+                  "type": "boolean"
+                },
+                "disclosure": {
+                  "enum": [
+                    "onscreen",
+                    "spoken",
+                    "credits",
+                    "companion",
+                    "report-only",
+                    "none"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              }
+            },
+            "iptc": {
+              "type": "object"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "interoperability": {
+      "type": "object"
+    },
+    "signed": {
+      "type": "object",
+      "required": [
+        "name",
+        "role",
+        "date"
+      ],
+      "properties": {
+        "method": {
+          "const": "self-attestation"
+        },
+        "identityVerified": {
+          "type": "boolean"
+        },
+        "attested": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "extensions": {
+      "type": "object",
+      "description": "Extension point. Third parties add their own fields under a reverse-DNS key, for example \"nl.filmfonds.v1\". Readers must ignore keys they do not recognise.",
+      "propertyNames": {
+        "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"
+      },
+      "additionalProperties": true
+    }
+  }
+}

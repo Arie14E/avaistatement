@@ -1,12 +1,35 @@
 <!doctype html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=nl/">
-  <title>Origin Report</title>
+  <title>Audiovisueel AI Statement</title>
+  <meta name="description" content="An open declaration about the use of generative AI in film and video production.">
+  <link rel="canonical" href="https://avaistatement.com/en/index.html">
+  <link rel="alternate" hreflang="nl" href="https://avaistatement.com/nl/index.html">
+  <link rel="alternate" hreflang="en" href="https://avaistatement.com/en/index.html">
+  <link rel="alternate" hreflang="x-default" href="https://avaistatement.com/en/index.html">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/site-config.js" defer></script>
+  <script>
+    // Dutch-speaking visitors go to /nl/, everyone else to /en/.
+    // Without JavaScript both links below still work.
+    (() => {
+      const tags = navigator.languages && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language || "en"];
+      const prefersDutch = Array.prototype.some.call(tags, tag => String(tag).toLowerCase().indexOf("nl") === 0);
+      window.location.replace(prefersDutch ? "nl/index.html" : "en/index.html");
+    })();
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url=en/index.html"></noscript>
 </head>
 <body>
-  <p><a href="nl/">Ga naar Origin Report</a></p>
+  <main class="language-gate">
+    <h1>Audiovisueel AI Statement</h1>
+    <p><a href="en/index.html">Continue in English</a></p>
+    <p><a href="nl/index.html" lang="nl">Ga verder in het Nederlands</a></p>
+  </main>
 </body>
 </html>

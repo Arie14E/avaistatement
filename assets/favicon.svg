@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Audiovisueel AI Statement">
+  <rect width="32" height="32" rx="7" fill="#0c1424"/>
+  <g>
+    <rect x="6"  y="8" width="4" height="16" rx="2" fill="#dce3e7"/>
+    <rect x="12" y="8" width="4" height="16" rx="2" fill="#43dec0"/>
+    <rect x="18" y="8" width="4" height="16" rx="2" fill="#dce3e7"/>
+    <rect x="24" y="8" width="4" height="16" rx="2" fill="#6c5ce7"/>
+  </g>
+</svg>
