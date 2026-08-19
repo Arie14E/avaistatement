@@ -14,9 +14,9 @@
     // zodat het over tien jaar nog te valideren is.
     schemaBase: "https://avaistatement.com/schema",
 
-    // Staat in de voettekst van elke PDF: waar een ontvanger het bijbehorende
-    // JSON-bestand kan openen en nalezen.
-    readerUrl: "avaistatement.com/nl/rapport.html"
+    // Staat in de voettekst van elke PDF, zodat een ontvanger weet waar het
+    // format vandaan komt.
+    readerUrl: "avaistatement.com"
   });
 
   window.SITE_CONFIG = config;

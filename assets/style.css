@@ -172,3 +172,34 @@ details.answer-guide .answer-guide-grid{padding:18px 20px 20px}
 .news-card a{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;text-decoration-color:rgba(12,20,36,.3)}
 .news-card a:hover{text-decoration-color:var(--violet)}
 .news-card em{font-style:normal;font-weight:600;color:var(--ink)}
+
+/* ---------- The two pillars: statement and registry, side by side ---------- */
+.pillars-section{padding-top:12px}
+.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px;margin-top:34px}
+.pillar{position:relative;padding:38px 36px 34px;border:1px solid var(--line);border-radius:24px;background:var(--white);overflow:hidden}
+.pillar::before{content:"";position:absolute;inset:0 0 auto 0;height:4px}
+.pillar-statement{background:linear-gradient(180deg,rgba(69,103,242,.045),rgba(69,103,242,0) 240px)}
+.pillar-statement::before{background:linear-gradient(90deg,#4567f2,#7d9bff)}
+.pillar-registry{background:linear-gradient(180deg,rgba(224,138,60,.05),rgba(224,138,60,0) 240px)}
+.pillar-registry::before{background:linear-gradient(90deg,#e08a3c,#f0b277)}
+.pillar-label{display:inline-block;margin-bottom:16px;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.03em}
+.pillar-statement .pillar-label{background:rgba(69,103,242,.1);color:#2b46b8}
+.pillar-registry .pillar-label{background:rgba(224,138,60,.13);color:#9a5410}
+.pillar-title{margin:0 0 6px;font-size:38px;line-height:1.05;letter-spacing:-.02em}
+.pillar-lead{margin:0 0 16px;font-size:17px;font-weight:600;line-height:1.35}
+.pillar p{margin:0 0 16px;font-size:14.5px;line-height:1.65;color:var(--muted)}
+.pillar-list{margin:0 0 20px;padding:0;list-style:none}
+.pillar-list li{position:relative;padding:0 0 0 20px;margin-bottom:7px;font-size:13.5px;color:var(--muted)}
+.pillar-list li::before{content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%}
+.pillar-statement .pillar-list li::before{background:#4567f2}
+.pillar-registry .pillar-list li::before{background:#e08a3c}
+.pillars-note{max-width:62ch;margin:30px auto 0;text-align:center;font-size:14.5px;line-height:1.7;color:var(--muted)}
+.register-hero .gradient-text{background:linear-gradient(90deg,#e08a3c,#6c5ce7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.register-banner{border-left-color:#e08a3c;background:rgba(224,138,60,.07)}
+.register-card::after{content:"";position:absolute;left:22px;right:22px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:linear-gradient(90deg,#e08a3c,rgba(224,138,60,0))}
+.register-card{position:relative;overflow:hidden}
+@media (max-width:720px){
+  .pillar{padding:28px 24px 26px}
+  .pillar-title{font-size:30px}
+}
+.cta-note{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--muted);max-width:52ch}

@@ -164,7 +164,7 @@
 
     /* 1. document details — so the file can be archived and cited */
     b.heading(t.pdfDocSection);
-    b.row(t.pdfIdentifier, (report.identifier && report.identifier.value) || "—", { font: fonts.mono, size: SIZE.small });
+    b.row(t.pdfIdentifier, (report.identifier && report.identifier.value) || t.notProvided, { font: fonts.mono, size: SIZE.small });
     b.row(t.pdfIssued, String(report.updatedAt || "").slice(0, 10) || t.notProvided);
     b.row(t.pdfFormat, siteName + " " + (report.version || "?"));
     b.row(t.pdfDocStatus, (report.signed && report.signed.attested) ? t.pdfDocStatusFinal : t.pdfDocStatusDraft);
@@ -246,7 +246,7 @@
         }
         if (stage.iptc && stage.iptc.digitalSourceType) {
           const term = (stage.iptc.digitalSourceType.cvTermId || "").split("/").pop();
-          b.row(t.iptcLabel, lookup(copy.sourceTypes, term) + " — " + term, { size: SIZE.small });
+          b.row(t.iptcLabel, lookup(copy.sourceTypes, term) + " · " + term, { size: SIZE.small });
           if (stage.iptc.aIPromptInformation) b.row(t.promptLabel, stage.iptc.aIPromptInformation, { size: SIZE.small });
           if (stage.iptc.aIPromptWriterName) b.row(t.promptWriterLabel, stage.iptc.aIPromptWriterName, { size: SIZE.small });
         }
@@ -319,7 +319,7 @@
       });
     });
 
-    doc.setTitle((report.title || "Statement") + " — " + siteName);
+    doc.setTitle((report.title || "Statement") + " | " + siteName);
     doc.setSubject(siteName + " " + (report.version || ""));
     doc.setProducer(siteName);
     doc.setCreator(siteName);
