@@ -337,7 +337,34 @@
     const typeOther=String(data.get("type_other") || "").trim(),url=String(data.get("url") || "").trim(),statement=String(data.get("statement") || "").trim(); if (typeOther) report.typeOther=typeOther; if (url) report.url=url; if (statement) report.statement=statement; return report;
   }
   function validateForExport() { const requiredSteps=[1,2,3,6]; for (const stepNumber of requiredSteps) { showStep(stepNumber); if (!validateCurrent()) return false; } showStep(6); saveDraft(); return true; }
-  document.querySelector("#download-json")?.addEventListener("click",()=>{ if (!validateForExport()) return; const report=payload(),safe=(report.title || siteConfig.fileStem).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); downloadObject(report,`${safe || siteConfig.fileStem}-${reportId.toLowerCase()}.${siteConfig.fileStem}.json`); });
+  const jsonName = report => { const safe=(report.title || siteConfig.fileStem).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); const id = reportId.toLowerCase().replace(/[^a-z0-9-]+/g,"").replace(/-+$/,""); return `${safe || siteConfig.fileStem}-${id}.${siteConfig.fileStem}.json`; };
+
+  // De PDF is het document dat de producent overhandigt; het JSON-bestand is
+  // voor uitwisseling tussen systemen. Vandaar deze volgorde.
+  const pdfButton = document.querySelector("#download-json");
+  if (pdfButton) pdfButton.addEventListener("click", async () => {
+    if (!validateForExport()) return;
+    const report = payload();
+    const label = pdfButton.textContent;
+    pdfButton.disabled = true; pdfButton.textContent = ui.pdfBusy;
+    try {
+      const current = counts(), total = includedStages().length;
+      const summary = copy.credit.replace("{none}",current.none).replace("{assisted}",current.assisted)
+        .replace("{generated}",current.generated).replace("{na}",current.na).replace("{total}",total);
+      const agents = agentCount();
+      const credit = `${localCopy.localCredit.replace("{id}",reportId)} ${summary}${agents ? " " + copy.agentCredit.replace("{agents}",agents) : ""}`;
+      await window.STATEMENT_PDF.download(report,
+        window.STATEMENT_PDF.context(language, siteConfig, credit),
+        window.STATEMENT_PDF.filenameFor(report, siteConfig));
+    } catch (error) {
+      window.alert(ui.pdfFailed);
+      downloadObject(report, jsonName(report));
+    } finally {
+      pdfButton.disabled = false; pdfButton.textContent = label;
+    }
+  });
+
+  document.querySelector("#download-json-file")?.addEventListener("click",()=>{ if (!validateForExport()) return; const report=payload(); downloadObject(report, jsonName(report)); });
   c2paButton.addEventListener("click",()=>{ if (!validateForExport()) return; const report=payload(),current=counts(),safe=(report.title || siteConfig.fileStem).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); const handoff={format:`${siteConfig.formatId}-c2pa-handoff`,version:"0.1",status:"unsigned-preparation",warning:c2paCopy.warning,audiovisualAiStatement:{identifier:report.identifier,formatVersion:report.version,title:report.title,producer:report.producer,signed:report.signed.attested},summary:{includedStages:includedStages().length,notUsed:current.none,assisted:current.assisted,aiMaterialInFinalResult:current.generated,notApplicable:current.na},candidateDigitalSourceTypes:report.interoperability.iptc.candidateDigitalSourceTypes,suggestedCustomAssertion:{label:"org.audiovisualaistatement.declaration",kind:"Json",data:{audiovisualAiStatementId:reportId,reportFormatVersion:report.version,summary:{assistedStages:current.assisted,generatedStages:current.generated}}},requiresAssetSpecificReview:true,reviewInstruction:c2paCopy.review,missingForContentCredential:["target media asset","asset-specific c2pa.created or c2pa.opened action","private signing key","appropriate signing certificate","cryptographic signature","optional trusted timestamp"]}; downloadObject(handoff,`${safe || siteConfig.fileStem}-${reportId.toLowerCase()}.${c2paCopy.filename}.json`); });
   document.querySelector("#copy-credit")?.addEventListener("click",async event=>{ const current=counts(),total=includedStages().length,summary=copy.credit.replace("{none}",current.none).replace("{assisted}",current.assisted).replace("{generated}",current.generated).replace("{na}",current.na).replace("{total}",total),agents=agentCount(),agentLine=agents ? " "+copy.agentCredit.replace("{agents}",agents) : "",credit=`${localCopy.localCredit.replace("{id}",reportId)} ${summary}${agentLine}`; try { await navigator.clipboard.writeText(credit); } catch { window.prompt(language==="nl" ? "Kopieer deze tekst:" : "Copy this text:",credit); } const old=event.currentTarget.textContent; event.currentTarget.textContent=`✓ ${copy.copied}`; window.setTimeout(()=>{event.currentTarget.textContent=old;},1800); });
   // Hand the finished statement to the report reader, through this browser only.

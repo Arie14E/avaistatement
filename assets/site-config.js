@@ -12,7 +12,11 @@
 
     // Waar de gepubliceerde JSON-schema's staan. Elk statement verwijst hiernaar,
     // zodat het over tien jaar nog te valideren is.
-    schemaBase: "https://avaistatement.com/schema"
+    schemaBase: "https://avaistatement.com/schema",
+
+    // Staat in de voettekst van elke PDF: waar een ontvanger het bijbehorende
+    // JSON-bestand kan openen en nalezen.
+    readerUrl: "avaistatement.com/nl/rapport.html"
   });
 
   window.SITE_CONFIG = config;

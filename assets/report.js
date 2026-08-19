@@ -18,105 +18,7 @@
   const values = data.values;
   const allStages = copy.blocks.flatMap(block => block[1]);
 
-  const t = language === "nl" ? {
-    dropTitle: "Open een statement",
-    dropText: "Sleep een .json-bestand hierheen of kies het hieronder. Het bestand wordt niet verstuurd; het blijft in deze browser.",
-    choose: "Kies een bestand",
-    invalid: "Dit lijkt geen geldig Audiovisueel AI Statement. Controleer of je het gedownloade .json-bestand hebt gekozen en niet het conceptbestand.",
-    unreadable: "Dit bestand kon niet worden gelezen. Is het beschadigd of geen JSON?",
-    draftWarning: "Dit is een conceptbestand, geen afgerond statement. Rond de verklaring af in het formulier en download daar het definitieve bestand.",
-    summary: "Samenvatting",
-    stagesIncluded: "opgenomen fases",
-    signature: "Ondertekening",
-    signedBy: "Ondertekend door",
-    role: "Rol",
-    date: "Datum",
-    attestation: "Ondertekening",
-    attested: "Zelfverklaring afgelegd",
-    notAttested: "Niet ondertekend",
-    contextShort: "Presentatie in het werk",
-    authenticityShort: "Kan worden aangezien voor authentiek",
-    disclosureShort: "Kenbaar gemaakt via",
-    realityShort: "Wat is echt, wat is gegenereerd",
-    identityNote: "Zelfverklaring met eenvoudige elektronische ondertekening. De identiteit van de ondertekenaar is niet gecontroleerd.",
-    disclaimer: "Dit is een verklaring van de makers, geen keurmerk en geen technische detectie. " + siteName + " controleert of certificeert niets.",
-    statementLabel: "Algemene toelichting",
-    departments: "Betrokken vakgebieden",
-    inScope: "Vakgebieden binnen deze fase",
-    details: "Wat is er gedaan",
-    system: "AI-tool, systeem of model",
-    agent: "AI-agent nam werk over",
-    extentLabel: "Omvang in het eindresultaat",
-    timecodes: "Duur, locatie of timecodes",
-    location: "Waar in het werk",
-    extensions: "Aanvullende gegevens van",
-    extensionsBlock: "Aanvullende gegevens van derden",
-    iptcLabel: "IPTC digital source type",
-    promptLabel: "Promptinformatie",
-    promptWriterLabel: "Promptschrijver",
-    scopeExcluded: "Delivery en campagne vallen buiten deze verklaring.",
-    scopeIncluded: "Delivery en campagne zijn meegenomen.",
-    print: "Print / PDF",
-    openOther: "Ander bestand openen",
-    credit: "Credittekst",
-    copy: "Kopieer credittekst",
-    copied: "Gekopieerd",
-    generated: "Weergegeven op",
-    reportOf: "Statement van",
-    notProvided: "Niet ingevuld",
-    minutes: "min",
-    version: "Formaatversie",
-    localStatus: "Lokaal statement · niet in een openbaar register opgenomen"
-  } : {
-    dropTitle: "Open a statement",
-    dropText: "Drop a .json file here or choose one below. The file is not uploaded; it stays in this browser.",
-    choose: "Choose a file",
-    invalid: "This does not look like a valid Audiovisueel AI Statement. Check that you picked the downloaded .json report and not the draft file.",
-    unreadable: "This file could not be read. Is it damaged or not JSON?",
-    draftWarning: "This is a draft file, not a finished statement. Complete the declaration in the form and download the final file there.",
-    summary: "Summary",
-    stagesIncluded: "included stages",
-    signature: "Signature",
-    signedBy: "Signed by",
-    role: "Role",
-    date: "Date",
-    attestation: "Signing",
-    attested: "Self-attestation given",
-    notAttested: "Not signed",
-    contextShort: "Presentation in the work",
-    authenticityShort: "Could be mistaken for authentic",
-    disclosureShort: "Disclosed through",
-    realityShort: "What is real, what is generated",
-    identityNote: "Self-attestation with simple electronic signing. The signatory's identity has not been verified.",
-    disclaimer: "This is a declaration by the makers, not a certification and not technical detection. " + siteName + " verifies and certifies nothing.",
-    statementLabel: "General notes",
-    departments: "Crafts involved",
-    inScope: "Crafts within this stage",
-    details: "What was done",
-    system: "AI tool, system or model",
-    agent: "AI agent took over work",
-    extentLabel: "Extent in the final result",
-    timecodes: "Duration, location or timecodes",
-    location: "Where in the work",
-    extensions: "Additional data from",
-    extensionsBlock: "Additional data from third parties",
-    iptcLabel: "IPTC digital source type",
-    promptLabel: "Prompt information",
-    promptWriterLabel: "Prompt writer",
-    scopeExcluded: "Delivery and campaign fall outside this declaration.",
-    scopeIncluded: "Delivery and campaign are included.",
-    print: "Print / PDF",
-    openOther: "Open another file",
-    credit: "Credit line",
-    copy: "Copy credit line",
-    copied: "Copied",
-    generated: "Rendered on",
-    reportOf: "Statement for",
-    notProvided: "Not provided",
-    minutes: "min",
-    version: "Format version",
-    localStatus: "Local statement · not listed in a public register"
-  };
+  const t = data.doc[language];
 
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -334,7 +236,22 @@
 
     /* actions (hidden when printing) */
     const actions = el("div", "doc-actions");
-    const printButton = el("button", "button primary", t.print);
+    const pdfButton = el("button", "button primary", t.downloadPdf);
+    pdfButton.type = "button";
+    pdfButton.addEventListener("click", async () => {
+      const label = pdfButton.textContent;
+      pdfButton.disabled = true; pdfButton.textContent = ui.pdfBusy;
+      try {
+        await window.STATEMENT_PDF.download(report,
+          window.STATEMENT_PDF.context(language, siteConfig, fullCredit),
+          window.STATEMENT_PDF.filenameFor(report, siteConfig));
+      } catch (error) {
+        window.alert(ui.pdfFailed);
+      } finally {
+        pdfButton.disabled = false; pdfButton.textContent = label;
+      }
+    });
+    const printButton = el("button", "button secondary", t.print);
     printButton.type = "button";
     printButton.addEventListener("click", () => window.print());
     const copyButton = el("button", "button secondary", t.copy);
@@ -348,7 +265,7 @@
     const againButton = el("button", "button secondary", t.openOther);
     againButton.type = "button";
     againButton.addEventListener("click", () => { showDropzone(); });
-    actions.append(printButton, copyButton, againButton);
+    actions.append(pdfButton, printButton, copyButton, againButton);
 
     document.body.classList.add("has-report");
     root.replaceChildren(actions, doc);
